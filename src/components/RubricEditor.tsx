@@ -3,8 +3,17 @@ import { JsonEditor } from "./JsonEditor";
 type RubricEditorProps = {
   value: string;
   onChange: (value: string) => void;
+  meta?: string;
 };
 
 export function RubricEditor(props: RubricEditorProps) {
-  return <JsonEditor label="Rubric" value={props.value} onChange={props.onChange} />;
+  return (
+    <JsonEditor
+      label="Rubric"
+      subtitle="Criteria, scale, labels, and weights"
+      value={props.value}
+      onChange={props.onChange}
+      meta={props.meta}
+    />
+  );
 }
