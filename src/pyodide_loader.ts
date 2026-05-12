@@ -79,7 +79,7 @@ export async function runEvalkitInBrowser(rubric: string, responses: string) {
     await ensureEvalkit(pyodide);
     pyodide.globals.set("auraone_rubric_json", rubric);
     pyodide.globals.set("auraone_responses_jsonl", responses);
-    return await pyodide.runPythonAsync(`
+    const resultJson = await pyodide.runPythonAsync(`
 import json
 import auraone_evalkit
 from auraone_evalkit.schema.models import RubricCriterion
@@ -119,8 +119,9 @@ for index, response in enumerate(responses, start=1):
 result = score_outputs(criteria, responses, labels).to_dict()
 result["runtime"] = "pyodide"
 result["evalkit_version"] = getattr(auraone_evalkit, "__version__", "unknown")
-result
+json.dumps(result)
 `);
+    return JSON.parse(String(resultJson));
   } catch (error) {
     return localScore(rubric, responses, error);
   }
