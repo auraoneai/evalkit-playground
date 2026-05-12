@@ -16,4 +16,5 @@
 - There is no backend, API key, or AuraOne account requirement.
 - Monaco is used for structured JSON editing because users need syntax feedback before running a score.
 - The fallback scorer keeps the playground usable when PyPI/CDN package loading is unavailable.
+- Permalink state is encoded through a typed URL-safe Base64 helper and covered by runtime round-trip tests.
 - All bundled examples are synthetic tutorial data.

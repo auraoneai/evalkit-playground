@@ -5,3 +5,10 @@ Browser EvalKit playground using a Pyodide-compatible execution shim. Users past
 ## What This Is Not
 
 No backend, no API key, no AuraOne account, and no real customer data.
+
+## Local Checks
+
+```bash
+npm test
+npm run build
+```

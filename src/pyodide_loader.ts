@@ -5,6 +5,8 @@ type PyodideRuntime = {
   globals: { set: (name: string, value: unknown) => void };
 };
 
+export { decodePermalink, encodePermalink } from "./permalink";
+
 declare global {
   interface Window {
     loadPyodide?: (options?: { indexURL?: string }) => Promise<PyodideRuntime>;
@@ -123,5 +125,3 @@ result
     return localScore(rubric, responses, error);
   }
 }
-export function encodePermalink(rubric: string, responses: string) { return btoa(unescape(encodeURIComponent(JSON.stringify({ rubric, responses })))); }
-export function decodePermalink(hash: string) { return JSON.parse(decodeURIComponent(escape(atob(hash)))); }
