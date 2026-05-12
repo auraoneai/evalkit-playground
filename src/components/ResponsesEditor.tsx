@@ -1,1 +1,10 @@
-export function ResponsesEditor(props: any) { return <textarea value={props.value ?? ""} onChange={e => props.onChange?.(e.target.value)} />; }
+import { JsonEditor } from "./JsonEditor";
+
+type ResponsesEditorProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+export function ResponsesEditor(props: ResponsesEditorProps) {
+  return <JsonEditor label="Responses" language="jsonl" value={props.value} onChange={props.onChange} />;
+}
