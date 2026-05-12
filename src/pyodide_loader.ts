@@ -80,17 +80,44 @@ export async function runEvalkitInBrowser(rubric: string, responses: string) {
     return await pyodide.runPythonAsync(`
 import json
 import auraone_evalkit
+from auraone_evalkit.schema.models import RubricCriterion
+from auraone_evalkit.scoring.engine import score_outputs
 
-rubric = json.loads(auraone_rubric_json)
+rubric_spec = json.loads(auraone_rubric_json)
 responses = [json.loads(line) for line in auraone_responses_jsonl.splitlines() if line.strip()]
-{
-    "synthetic": True,
-    "runtime": "pyodide",
-    "evalkit_version": getattr(auraone_evalkit, "__version__", "unknown"),
-    "score": 1 if responses else 0,
-    "criteria": [criterion.get("criterion_id") for criterion in rubric.get("criteria", [])],
-    "response_count": len(responses),
-}
+criteria = []
+for criterion in rubric_spec.get("criteria", []):
+    scale = criterion.get("scoring_type") or criterion.get("scale") or "scale_0_1"
+    scoring_type = "scale_0_1" if scale in ("likert", "continuous") else ("binary" if scale == "binary" else "ordinal")
+    criteria.append(RubricCriterion.from_mapping({
+        "criterion_id": criterion["criterion_id"],
+        "domain": "browser_playground",
+        "task_type": "synthetic_eval",
+        "criterion": criterion.get("description") or criterion.get("label") or criterion["criterion_id"],
+        "weight": criterion.get("weight", 1),
+        "severity": criterion.get("severity", "info"),
+        "scoring_type": scoring_type,
+        "examples": criterion.get("examples", []),
+        "score_levels": criterion.get("score_levels", {}),
+    }))
+
+labels = []
+for index, response in enumerate(responses, start=1):
+    output_id = response.get("output_id") or response.get("response_id") or response.get("item_id") or response.get("id") or f"out-{index}"
+    response["output_id"] = output_id
+    response_labels = response.get("labels", {})
+    for criterion in criteria:
+        labels.append({
+            "output_id": output_id,
+            "criterion_id": criterion.criterion_id,
+            "score": response_labels.get(criterion.criterion_id, response.get("score", 1)),
+            "label_source": "playground_synthetic",
+        })
+
+result = score_outputs(criteria, responses, labels).to_dict()
+result["runtime"] = "pyodide"
+result["evalkit_version"] = getattr(auraone_evalkit, "__version__", "unknown")
+result
 `);
   } catch (error) {
     return localScore(rubric, responses, error);

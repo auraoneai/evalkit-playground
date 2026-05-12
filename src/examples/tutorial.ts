@@ -21,7 +21,7 @@ export const examples: PlaygroundExample[] = [
       version: "auraone-rubric-v1",
       criteria: [{ criterion_id: "quality", label: "Quality", scale: "binary", weight: 1 }],
     }),
-    responses: formatJsonl([{ item_id: "tutorial-1", response: "Synthetic tutorial answer." }]),
+    responses: formatJsonl([{ output_id: "tutorial-1", response: "Synthetic tutorial answer.", labels: { quality: 1 } }]),
   },
   {
     id: "multi-turn",
@@ -34,7 +34,12 @@ export const examples: PlaygroundExample[] = [
       ],
     }),
     responses: formatJsonl([
-      { item_id: "chat-1", turns: [{ role: "user", content: "Summarize the synthetic policy." }], response: "Synthetic summary." },
+      {
+        output_id: "chat-1",
+        turns: [{ role: "user", content: "Summarize the synthetic policy." }],
+        response: "Synthetic summary.",
+        labels: { instruction_following: 0.8, grounding: 1 },
+      },
     ]),
   },
   {
@@ -52,7 +57,9 @@ export const examples: PlaygroundExample[] = [
         },
       ],
     }),
-    responses: formatJsonl([{ item_id: "ordinal-1", response: "A complete synthetic answer with clear steps." }]),
+    responses: formatJsonl([
+      { output_id: "ordinal-1", response: "A complete synthetic answer with clear steps.", labels: { helpfulness: 1 } },
+    ]),
   },
 ];
 
