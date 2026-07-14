@@ -1,25 +1,100 @@
-name: Deploy
-on: [push]
+name: Verify and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_production:
+        description: "Deploy this exact workflow commit to Vercel production"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evalkit-playground-${{ github.event_name == 'workflow_dispatch' && 'production' || github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  build:
+  verify:
+    name: test + build
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run build
+      - name: Generate static-build checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-evidence
+          find dist -type f -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            > release-evidence/SHA256SUMS
+      - name: Upload verified static build
+        uses: actions/upload-artifact@v4
+        with:
+          name: evalkit-playground-${{ github.sha }}
+          path: |
+            dist/
+            release-evidence/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    name: deploy exact commit to Vercel production
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_production }}
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm install --no-audit --no-fund
-      - run: npm test
-      - run: npm run build
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Require production deployment credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$VERCEL_TOKEN"
+          test -n "$VERCEL_ORG_ID"
+          test -n "$VERCEL_PROJECT_ID"
+      - run: npm ci --no-audit --no-fund
       - name: Pull Vercel production environment
-        if: ${{ github.ref == 'refs/heads/main' && env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
         run: npx vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
-      - name: Build Vercel artifact
-        if: ${{ github.ref == 'refs/heads/main' && env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
+      - name: Build Vercel production artifact
         run: npx vercel build --prod --token "$VERCEL_TOKEN"
-      - name: Deploy to Vercel
-        if: ${{ github.ref == 'refs/heads/main' && env.VERCEL_TOKEN != '' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != '' }}
-        run: npx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN"
+      - name: Deploy prebuilt production artifact
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="$(npx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed $GITHUB_SHA to $url" >> "$GITHUB_STEP_SUMMARY"

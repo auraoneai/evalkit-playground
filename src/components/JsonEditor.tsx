@@ -1,6 +1,7 @@
 import Editor from "@monaco-editor/react";
 
 type JsonEditorProps = {
+  id: string;
   label: string;
   subtitle?: string;
   meta?: string;
@@ -12,6 +13,7 @@ type JsonEditorProps = {
 };
 
 export function JsonEditor({
+  id,
   label,
   subtitle,
   meta,
@@ -19,13 +21,13 @@ export function JsonEditor({
   onChange,
   language = "json",
   readOnly = false,
-  height = "280px",
+  height = "555px",
 }: JsonEditorProps) {
   return (
-    <section className="editor-panel">
+    <section className="editor-panel" id={id} aria-labelledby={`${id}-title`}>
       <div className="editor-panel__header">
         <div>
-          <h2>{label}</h2>
+          <h2 id={`${id}-title`}>{label}</h2>
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
         {meta ? <span>{meta}</span> : null}
@@ -38,8 +40,10 @@ export function JsonEditor({
           value={value}
           onChange={(next) => onChange?.(next ?? "")}
           options={{
+            automaticLayout: true,
+            ariaLabel: `${label} editor`,
             minimap: { enabled: false },
-            fontFamily: "JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace",
+            fontFamily: '"IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace',
             fontSize: 13,
             lineDecorationsWidth: 10,
             lineNumbersMinChars: 3,
@@ -49,7 +53,7 @@ export function JsonEditor({
             scrollBeyondLastLine: false,
             wordWrap: "on",
           }}
-          theme="vs-dark"
+          theme="vs"
         />
       </div>
     </section>

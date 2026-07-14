@@ -9,6 +9,7 @@ type ResponsesEditorProps = {
 export function ResponsesEditor(props: ResponsesEditorProps) {
   return (
     <JsonEditor
+      id="responses-editor"
       label="Responses"
       subtitle="JSONL outputs with optional synthetic labels"
       language="jsonl"

@@ -1,13 +1,35 @@
 {
   "name": "evalkit-playground",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": false,
+  "description": "Browser-based AI rubric evaluation playground for scoring JSONL responses with local evidence inspection.",
+  "keywords": [
+    "ai-evaluation",
+    "browser-evaluation",
+    "llm-evaluation",
+    "evals",
+    "rubric",
+    "jsonl",
+    "pyodide",
+    "local-first"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/auraoneai/evalkit-playground.git"
+  },
+  "homepage": "https://playground.auraone.ai/",
+  "bugs": {
+    "url": "https://github.com/auraoneai/evalkit-playground/issues"
+  },
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "tsc --noEmit && tsx src/permalink.test.ts"
+    "test": "npm run test:unit && npm run test:ui",
+    "test:unit": "tsc --noEmit && tsx src/permalink.test.ts && tsx src/workspace.test.ts",
+    "test:ui": "playwright test",
+    "test:ui:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.0.0",
@@ -15,12 +37,18 @@
     "typescript": "^5.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@monaco-editor/react": "^4.6.0"
+    "@monaco-editor/react": "^4.6.0",
+    "lucide-react": "^0.468.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.61.1",
     "@types/node": "^20.17.9",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "tsx": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

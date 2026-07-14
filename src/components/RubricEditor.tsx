@@ -9,6 +9,7 @@ type RubricEditorProps = {
 export function RubricEditor(props: RubricEditorProps) {
   return (
     <JsonEditor
+      id="rubric-editor"
       label="Rubric"
       subtitle="Criteria, scale, labels, and weights"
       value={props.value}
