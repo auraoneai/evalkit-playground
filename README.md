@@ -1,10 +1,70 @@
 # EvalKit Playground
 
+**Free LLM evaluation playground in the browser:** validate rubric JSON, score
+JSONL model responses, and inspect criterion-level evidence with no backend,
+account, or API key.
+
+[![Try it in the browser](https://img.shields.io/badge/try_it-in_the_browser-2563eb)](https://playground.auraone.ai/) [![Deploy](https://github.com/auraoneai/evalkit-playground/actions/workflows/deploy.yml/badge.svg)](https://github.com/auraoneai/evalkit-playground/actions/workflows/deploy.yml) [![license](https://img.shields.io/github/license/auraoneai/evalkit-playground.svg)](LICENSE)
+
+## Quick Start
+
+Open [playground.auraone.ai](https://playground.auraone.ai/) and load the
+included example, or run it from source:
+
+```bash
+git clone https://github.com/auraoneai/evalkit-playground.git && cd evalkit-playground
+npm ci
+npm run dev
+```
+
+```text
+  VITE v5.4.21  ready in 105 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+```
+
 EvalKit Playground is a browser-based AI evaluation playground for validating
 rubric JSON, scoring JSONL model responses, and inspecting criterion-level
 evidence without provisioning an evaluation backend. It is the searchable,
 interactive entry point for browser evaluation, LLM rubric scoring, EvalKit
 experiments, and local JSONL evaluation.
+
+## What It Does And What It Doesn't Do
+
+It does:
+
+- Validate rubric JSON and imported JSONL responses with actionable input
+  errors.
+- Score responses in the browser by running `auraone-evalkit` under Pyodide,
+  and show criterion-level evidence rather than only an aggregate score.
+- Create permalinks that encode the full rubric and response state in the URL
+  fragment.
+
+It doesn't:
+
+- Send inputs to an AuraOne backend, or keep accounts or server-side projects.
+- Encrypt permalinks. Anyone with the link can decode its contents.
+- Work fully offline on first use: it downloads Pyodide from jsDelivr and
+  installs `auraone-evalkit` with `micropip`.
+- Produce evaluation proof from its synthetic fallback, which runs only when
+  Pyodide or package loading fails.
+- Ship as an npm library. The supported paths are the hosted app and a source
+  checkout.
+
+## Part of the AuraOne LLM evaluation workflow
+
+- [EvalKit Playground](https://auraone.ai/open/evalkit-playground): this app.
+- [AuraOne EvalKit](https://auraone.ai/open/evalkit): the offline LLM
+  evaluation CLI that the playground runs in the browser.
+- [Rubric Studio](https://auraone.ai/open/rubric-studio-open): build and review
+  evaluation rubrics.
+- Components: [EvalKit GitHub Action](https://github.com/auraoneai/evalkit-action),
+  [rubric-spec](https://github.com/auraoneai/rubric-spec),
+  [eval-adapter](https://github.com/auraoneai/eval-adapter),
+  [datasheet-ci](https://github.com/auraoneai/datasheet-ci).
+
+## Who It Is For
 
 **For:** evaluation engineers, researchers, prompt/application developers, and
 reviewers who need to understand a rubric or reproduce a small scoring example
@@ -101,3 +161,7 @@ Start with the included non-sensitive example, confirm the evidence rows, and
 then use the source tests when integrating. Release owners should tag and
 publish `0.2.0` only after the deployed build, source commit, and public release
 record all resolve to the same verified version.
+
+---
+
+Need expert reviewers to calibrate or score this evaluation? [Talk to AuraOne](https://auraone.ai/contact?from=open:evalkit-playground)
