@@ -2,11 +2,12 @@
   "name": "evalkit-playground",
   "version": "0.2.0",
   "private": false,
-  "description": "Browser-based AI rubric evaluation playground for scoring JSONL responses with local evidence inspection.",
+  "description": "Free LLM evaluation playground in the browser: validate rubrics and score JSONL model responses with criterion-level evidence.",
   "keywords": [
     "ai-evaluation",
     "browser-evaluation",
     "llm-evaluation",
+    "llm-evaluation-playground",
     "evals",
     "rubric",
     "jsonl",
@@ -17,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/auraoneai/evalkit-playground.git"
   },
-  "homepage": "https://playground.auraone.ai/",
+  "homepage": "https://auraone.ai/open/evalkit-playground",
   "bugs": {
     "url": "https://github.com/auraoneai/evalkit-playground/issues"
   },
